@@ -1,48 +1,70 @@
-const User = require('../models/userModel');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const userModel = require("../models/userModel");
 
-const generateToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-};
 
-exports.signup = async (req, res) => {
-  const { name, email, password } = req.body;
-  try {
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ message: 'User already exists' });
-
-    const newUser = await User.create({ name, email, password });
-    res.status(201).json({ message: 'User created', token: generateToken(newUser) });
-  } catch (err) {
-    res.status(500).json({ message: 'Error creating user', error: err.message });
+const completeSignup = (req, res) => {
+  const { inviteToken, password , fullName} = req.body;
+  if (!inviteToken || !password || !fullName) {
+    return res.status(400).json({ message: "Invite token, fullname and password are required" });
   }
+
+  userModel.completeSignup(fullName, inviteToken ,password, (err, result) => {
+    if (err) return res.status(500).json(err);
+    if (!result.success) return res.status(400).json({ message: result.message });
+    res.status(200).json({ success: result.success, message: result.message });
+  });
 };
 
-exports.login = async (req, res) => {
+const login = (req, res) => {
   const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-    res.status(200).json({ message: 'Login successful', token: generateToken(user) });
-  } catch (err) {
-    res.status(500).json({ message: 'Login failed', error: err.message });
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
   }
+
+  userModel.getUserByEmail(email, (err, user) => {
+    if (err) {
+      return res.status(500).json({ message: "Error login user", error: err });
+    }
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Compare passwords
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if (err)
+        return res.status(500).json({ message: "Error verifying password" });
+
+      if (!isMatch)
+        return res.status(401).json({ message: "Invalid credentials" });
+
+      // Generate JWT token
+      const token = jwt.sign(
+        {email: user.email, role: user.role },
+        process.env.JWT_SECRET,
+      );
+
+      res.status(200).json({ message: "Login successful", token });
+    });
+  });
 };
 
-exports.resetPassword = async (req, res) => {
-  const { email, newPassword } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'User not found' });
+const checkVerifyToken = (req, res) =>{
+  const {inviteToken} = req.body;
+  if(!inviteToken) return res.status(401).json({ message: "No invite token provided" });
+   userModel.verifyInviteToken(inviteToken, (error, result) => {
+    if (error) {
+      return res.status(401).json(error);
+    }
+    const user = result.user
+    res.status(200).json({email: user.email, fullName: user.fullName });
+  });
+}
 
-    user.password = newPassword; // This will be hashed due to pre-save middleware
-    await user.save();
-
-    res.status(200).json({ message: 'Password reset successful' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error resetting password', error: err.message });
-  }
+module.exports = {
+  login,
+  completeSignup,
+  checkVerifyToken
 };
