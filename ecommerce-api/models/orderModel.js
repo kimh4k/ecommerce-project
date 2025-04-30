@@ -2,12 +2,8 @@ const db = require('../db/connection');
 
 // Get all orders with pagination and search
 const getOrders = (page, limit, search, callback) => {
-  // Convert `page` and `limit` to integers
-  page = parseInt(page, 10);
-  limit = parseInt(limit, 10);
-  
-  const offset = (page - 1) * limit;  // Calculate offset
-  
+  // Sanitize inputs (pagination and search)
+  const offset = (page - 1) * limit;
   const query = `SELECT * FROM orders WHERE name LIKE ? LIMIT ? OFFSET ?`;
 
   db.query(query, [`%${search}%`, limit, offset], (err, results) => {
@@ -15,6 +11,7 @@ const getOrders = (page, limit, search, callback) => {
     callback(null, results); // Return the list of orders
   });
 };
+
 // Update the status of an order
 const updateOrderStatus = (orderId, status, callback) => {
   const validStatuses = ['pending', 'accepted', 'processing', 'delivering', 'cancelled', 'completed'];
