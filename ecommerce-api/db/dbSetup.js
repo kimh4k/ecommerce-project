@@ -100,7 +100,6 @@ async function initializeDatabase() {
   });
 }
 
-// Call the function when app starts
-initializeDatabase();
+module.exports = initializeDatabase;
 
 
