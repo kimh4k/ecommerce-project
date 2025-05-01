@@ -8,6 +8,11 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const accountRoutes = require('./routes/accountRoute'); 
+const verifyToken = require('./middlewares/verifyToken');
+const adminRoutes = require('./routes/adminCrudRoute');
+
 const app = express();
 const port = process.env.PORT || 3000;
 const host = process.env.HOST || '127.0.0.1';
@@ -18,7 +23,12 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Routes
+app.use("/v1/auth", authRoutes);
+app.use("/v1/users", userRoutes);
+app.use("/v1/account", verifyToken, accountRoutes);
+
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.listen(port, host, () => {
   console.log(`Server running at http://${host}:${port}`);
