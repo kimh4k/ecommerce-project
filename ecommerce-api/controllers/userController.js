@@ -33,26 +33,6 @@ const getAllUsers = (req, res) =>{
     })
 }
 
-// const updateUser = (req, res) => {
-//   const { email } = req.user;  // Extract email from the logged-in user
-//   const { fullName, newEmail } = req.body;  // Extract the new data from the request
-
-//   if (!email) {
-//       return res.status(401).json({ message: "Unauthorized: User not logged in" });
-//   }
-
-//   // Retrieve user by email
-//   userModel.getUserByEmail(email, (err, user) => {
-//       if (err) return res.status(500).json({ message: "Error fetching user", error: err });
-//       if (!user) return res.status(404).json({ message: "User not found" });
-
-//       // Update the user data (only fullName and email)
-//       userModel.updateUser(email, fullName, newEmail || email, user.password, (updateErr, result) => {
-//           if (updateErr) return res.status(500).json({ message: "Error updating user", error: updateErr });
-//           return res.status(200).json({ success: true, message: "User updated successfully" });
-//       });
-//   });
-// };
 
 
 const updateUserFullName = (req, res) => {
