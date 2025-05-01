@@ -21,10 +21,6 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-app.use(cors());
-app.use(express.json());
-app.use(morgan('dev'));
-
 // Routes
 app.use("/v1/auth", authRoutes);
 app.use("/v1/users", userRoutes);
