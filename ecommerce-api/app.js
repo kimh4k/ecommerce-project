@@ -1,9 +1,9 @@
-// const initializeDatabase = require("./db/dbSetup");
+const initializeDatabase = require("./db/dbSetup");
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 
-// initializeDatabase();
+initializeDatabase();
 
 require('dotenv').config();
 
@@ -12,6 +12,7 @@ const userRoutes = require('./routes/userRoutes');
 const accountRoutes = require('./routes/accountRoute'); 
 const verifyToken = require('./middlewares/verifyToken');
 const adminRoutes = require('./routes/adminCrudRoute');
+const cartRoutes = require('./routes/cartRoute');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -29,6 +30,7 @@ app.use("/v1/account", verifyToken, accountRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/v1/cart', cartRoutes);
 
 app.listen(port, host, () => {
   console.log(`Server running at http://${host}:${port}`);
