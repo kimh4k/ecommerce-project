@@ -8,6 +8,9 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const accountRoutes = require('./routes/accountRoute'); 
+const verifyToken = require('./middlewares/verifyToken');
 const adminRoutes = require('./routes/adminCrudRoute');
 
 const app = express();
@@ -20,6 +23,10 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Routes
+app.use("/v1/auth", authRoutes);
+app.use("/v1/users", userRoutes);
+app.use("/v1/account", verifyToken, accountRoutes);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 

@@ -3,7 +3,6 @@ import { SnackbarProvider } from 'notistack';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from '../context/AuthContext';
-import AuthGuard from '../components/auth/AuthGuard';
 import Layout from '../components/layout/Layout';
 import '../styles/globals.css';
 
@@ -19,40 +18,23 @@ const theme = createTheme({
   },
 });
 
-function MyApp({ Component, pageProps, router }) {
-  const [mounted, setMounted] = useState(false);
-
+function MyApp({ Component, pageProps }) {
+  // Remove server-side injected CSS
   useEffect(() => {
-    setMounted(true);
+    const jssStyles = document.querySelector('#jss-server-side');
+    if (jssStyles) {
+      jssStyles.parentElement.removeChild(jssStyles);
+    }
   }, []);
-
-  if (!mounted) {
-    return null;
-  }
-
-  // Don't apply layout to login page
-  const isLoginPage = router.pathname === '/login';
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <SnackbarProvider
-        maxSnack={3}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
+      <SnackbarProvider maxSnack={3}>
         <AuthProvider>
-          <AuthGuard>
-            {isLoginPage ? (
-              <Component {...pageProps} />
-            ) : (
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            )}
-          </AuthGuard>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
         </AuthProvider>
       </SnackbarProvider>
     </ThemeProvider>

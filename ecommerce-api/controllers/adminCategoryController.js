@@ -13,10 +13,10 @@ const createCategory = (req, res) => {
 
 // Get all categories with pagination and search
 const getCategories = (req, res) => {
-  const { page = 1, limit = 10, search = '' } = req.query;
+  const { page = 1, limit = 10, search = '' } = req.query; // Default page to 1, limit to 10
   categoryModel.getCategories(page, limit, search, (err, result) => {
     if (err) return res.status(500).json({ message: 'Error fetching categories', error: err });
-    res.status(200).json(result);
+    res.status(200).json(result); // Return the categories as a response
   });
 };
 
